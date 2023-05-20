@@ -14,6 +14,7 @@ class Menu:
         self.root = root
         root.title("Menü")
         root.geometry('500x500')
+        root.resizable(False, False)
 
         self.show_images()
 
