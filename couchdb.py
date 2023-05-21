@@ -69,6 +69,7 @@ class CouchDB:
 
     def get_attachment(self, document):
         r = requests.get(f"{self.default}{document.database}/{document.id}/image.jpg")
+        print(r.url)
         if r.status_code == 200:
             image = Image.open(io.BytesIO(r.content))
             return image
