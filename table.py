@@ -78,6 +78,7 @@ class Table:
 
     def doc_insert(self, documents):
         self.trees.delete(*self.trees.get_children())
+        self.documents = documents
         i = 0
         for doc in documents:
             print(doc)

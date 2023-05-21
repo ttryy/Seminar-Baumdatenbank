@@ -1,4 +1,5 @@
 import io
+import os.path
 
 import requests
 import uuid  # CouchDB bietet auch unter /_uuids UUIDs an
@@ -32,7 +33,7 @@ class CouchDB:
         r = requests.put(f"{self.default}{database}/{id}?rev={rev}", json=payload)
         rdata = json.loads(r.content.decode("utf-8"))
         self.print_response(r)
-        if r.status_code == 202 and rdata["ok"]:
+        if r.status_code == 201 and rdata["ok"]:
             return Doc(id=rdata["id"], rev=rdata["rev"], database=database, content=payload)
         else:
             return None
@@ -52,16 +53,19 @@ class CouchDB:
 
     def attachment(self, document, filepath):
         headers = {'Content-Type': 'image/jpeg'}
-        with open(filepath, "rb") as file:
-            r = requests.put(f"{self.default}{document.database}/{document.id}/image.jpg?rev={document.rev}",
-                             data=file, headers=headers)
-            rdata = json.loads(r.content.decode("utf-8"))
-            self.print_response(r)
-            if r.status_code == 202 and rdata["ok"]:
-                document.rev = rdata["rev"]
-                return document
-            else:
-                return document
+        if os.path.exists(filepath):
+            with open(filepath, "rb") as file:
+                r = requests.put(f"{self.default}{document.database}/{document.id}/image.jpg?rev={document.rev}",
+                                 data=file, headers=headers)
+                rdata = json.loads(r.content.decode("utf-8"))
+                self.print_response(r)
+                if r.status_code == 202 and rdata["ok"]:
+                    document.rev = rdata["rev"]
+                    return document
+                else:
+                    return document
+        else:
+            print("Datei nicht gefunden")
 
     def get_attachment(self, document):
         r = requests.get(f"{self.default}{document.database}/{document.id}/image.jpg")

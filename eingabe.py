@@ -80,14 +80,16 @@ class Eingabe:
         print(f"Art: {art}\nNotiz: {notiz}\nTimestamp: {timestamp}\nAlter: {alter}\nGesundheitszustand: {gesundheit}\nStandort: {standort}\nBild: {bild}")
         payload = {"art": art, "notiz": notiz, "timestamp": timestamp, "alter": alter, "gesundheitszustand": gesundheit, "standort": standort, "bild": bild}
 
+        old_document = None
         if self.document is not None:
-            doc = self.couch.update_doc(self.document, payload)
+            old_document = self.document
+            self.document = self.couch.update_doc(self.document, payload)
         else:
-            doc = self.couch.insert("trees", payload)
+            self.document = self.couch.insert("trees", payload)
 
         # Im Falle eines Bildes wird es hinzugefügt
-        if len(self.bild_var.get()) > 1:
-            self.couch.attachment(doc, self.bild_var.get())
+        if len(bild) > 1 and not (old_document is not None and bild == old_document.content.get("bild", "")):
+            self.couch.attachment(self.document, bild)
         self.root.destroy()
 
     def loeschen(self):
@@ -96,7 +98,7 @@ class Eingabe:
         self.root.destroy()
 
     def open_image(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg")])
+        file_path = filedialog.askopenfilename(parent=self.root, filetypes=[("Image files", "*.jpg")])
         if file_path:
             self.bild_var.set(file_path)
             self.bild_label.config(text=file_path)
