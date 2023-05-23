@@ -50,13 +50,13 @@ class Menu:
         cdb_photo = ImageTk.PhotoImage(cdb_image)
         cdb_label = tk.Label(self.root, image=cdb_photo)
         cdb_label.image = cdb_photo
-        cdb_label.place(x=212, y=90)
+        cdb_label.place(x=400, y=400)
 
-        scale = 5
+        scale = 7
         hs_image = Image.open("assets/Logo_Hochschule_Trier.png")
         hs_image = hs_image.resize((int(56*scale), int(13*scale)), Image.ANTIALIAS)
         hs_photo = ImageTk.PhotoImage(hs_image)
         hs_label = tk.Label(self.root, image=hs_photo)
         hs_label.image = hs_photo
-        hs_label.place(x=500-hs_image.width, y=0)
+        hs_label.place(x=(500-hs_image.width) / 2, y=50)
 
