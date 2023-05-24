@@ -6,6 +6,7 @@ import uuid  # CouchDB bietet auch unter /_uuids UUIDs an
 import json
 from PIL import Image
 
+
 class CouchDB:
 
     def __init__(self):
