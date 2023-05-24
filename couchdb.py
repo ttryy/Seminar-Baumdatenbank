@@ -33,7 +33,7 @@ class CouchDB:
         r = requests.put(f"{self.default}{database}/{id}?rev={rev}", json=payload)
         rdata = json.loads(r.content.decode("utf-8"))
         self.print_response(r)
-        if r.status_code == 201 and rdata["ok"]:
+        if r.status_code in [202, 201] and rdata["ok"]:
             return Doc(id=rdata["id"], rev=rdata["rev"], database=database, content=payload)
         else:
             return None
