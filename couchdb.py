@@ -25,7 +25,7 @@ class CouchDB:
         r = requests.put(f"{self.default}{database}/{uuid.uuid4()}", json=payload)
         rdata = json.loads(r.content.decode("utf-8"))
         self.print_response(r)
-        if r.status_code == 202 and rdata["ok"]:
+        if r.status_code in [202, 201] and rdata["ok"]:
             return Doc(id=rdata["id"], rev=rdata["rev"], database=database, content=payload)
         else:
             return None
@@ -54,7 +54,7 @@ class CouchDB:
 
     def attachment(self, document, filepath):
         headers = {'Content-Type': 'image/jpeg'}
-        if os.path.exists(filepath):
+        if isinstance(filepath, str) and os.path.exists(filepath):
             with open(filepath, "rb") as file:
                 r = requests.put(f"{self.default}{document.database}/{document.id}/image.jpg?rev={document.rev}",
                                  data=file, headers=headers)
@@ -65,6 +65,18 @@ class CouchDB:
                     return document
                 else:
                     return document
+        elif isinstance(filepath, Image.Image):
+            image_bytes = io.BytesIO()
+            filepath.save(image_bytes, format="JPEG")
+            r = requests.put(f"{self.default}{document.database}/{document.id}/image.jpg?rev={document.rev}",
+                             data=image_bytes.getvalue(), headers=headers)
+            rdata = json.loads(r.content.decode("utf-8"))
+            self.print_response(r)
+            if r.status_code == 202 and rdata["ok"]:
+                document.rev = rdata["rev"]
+                return document
+            else:
+                return document
         else:
             print("Datei nicht gefunden")
 

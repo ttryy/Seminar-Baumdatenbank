@@ -61,9 +61,9 @@ class Eingabe:
             self.standort_entry.insert('end', document.content.get("standort", ""))
             self.bild_label.config(text=document.content.get("bild", ""))
             self.bild_var.set(document.content.get("bild", ""))
-            image = self.couch.get_attachment(document)
-            if image is not None:
-                self.load_image(image)
+            self.image = self.couch.get_attachment(document)
+            if self.image is not None:
+                self.load_image(self.image)
 
             delete_button = tk.Button(root, text="Löschen", command=self.loeschen, font=("TkDefaultFont", 12))
             delete_button.place(x=200, y=460, width=200, height=30)
@@ -88,8 +88,11 @@ class Eingabe:
             self.document = self.couch.insert("trees", payload)
 
         # Im Falle eines Bildes wird es hinzugefügt
-        if len(bild) > 1 and not (old_document is not None and bild == old_document.content.get("bild", "")):
+        if self.document is not None and len(bild) > 1 \
+                and not (old_document is not None and bild == old_document.content.get("bild", "")):
             self.couch.attachment(self.document, bild)
+        elif self.document is not None:
+            self.couch.attachment(self.document, self.image)
         self.root.destroy()
 
     def loeschen(self):
